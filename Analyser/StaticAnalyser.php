@@ -32,12 +32,12 @@ class StaticAnalyser extends Analyser
                 $vp->usage++;
                 if ($this->_options & (Options::Verbose | Options::Debug)) {
                     $msg = 'Found existing static Property ' . $vp->id  . ' increase usage: ' . $vp->usage;
-                    printf(DEBUG_PRINT_FORMAT, 'VA', $token->line, $msg);
+                    printf(DEBUG_PRINT_FORMAT, 'SA', $token->line, $msg);
                 }
             } else {
                 if ($this->_options & (Options::Verbose | Options::Debug)) {
                     $msg = 'Found new static Property ' . $tok->id;
-                    printf(DEBUG_PRINT_FORMAT, 'VA', $token->line, $msg);
+                    printf(DEBUG_PRINT_FORMAT, 'SA', $token->line, $msg);
                 }
 
                 $var->defined     = false;
