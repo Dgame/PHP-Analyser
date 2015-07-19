@@ -51,18 +51,20 @@ final class Variable
 
     public function __toString()
     {
-        $kind = 'Variable';
+        $state = $this->state == T_STATIC ? 'static ' : null;
+
+        $kind = 'Variable ';
         if ($this->property) {
-            $kind = 'Property';
+            $kind = 'Property ';
         } elseif ($this->parameter) {
-            $kind = 'Parameter';
+            $kind = 'Parameter ';
         }
 
         if ($this->property) {
-            return $kind . ' ' . $this->name;
+            return $state . $kind . $this->name;
         }
 
-        return $kind . ' ' . $this->id;
+        return $state . $kind . $this->id;
     }
 
     public function __get(string $name)
