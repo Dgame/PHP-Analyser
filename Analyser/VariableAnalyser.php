@@ -25,10 +25,6 @@ class VariableAnalyser extends Analyser
             return $this->_analyseThisDecl($scopes, $cursor);
         }
 
-        if ($token->id == 'self' || $token->id == 'static') {
-            return $this->_analyseStaticDecl($scopes, $cursor);
-        }
-
         if (Variable::IsException($token->id)) {
             return false; // don't match super globals, they are magic
         }
@@ -99,48 +95,6 @@ class VariableAnalyser extends Analyser
             } else {
                 if ($this->_options & (Options::Verbose | Options::Debug)) {
                     $msg = 'Found new Property ' . $tok->id;
-                    printf(DEBUG_PRINT_FORMAT, 'VA', $token->line, $msg);
-                }
-
-                $var->defined     = false;
-                $var->property    = true;
-                $var->initialized = $this->_findInitializer($cursor);
-
-                $scope->addVariable($var);
-            }
-        }
-
-        return true;
-    }
-
-    private function _analyseStaticDecl(Scopes $scopes, Cursor $cursor)
-    {
-        $token = $cursor->getCurrentToken();
-        assert($token->id == 'self' || $token->id == 'static');
-
-        $cursor->next(); // jump over 'self'
-        $tok = $cursor->getCurrentToken();
-
-        if ($tok->type == T_DOUBLE_COLON) { // self/static access
-            $cursor->next();
-            $tok = $cursor->getCurrentToken();
-
-            assert($tok->id == T_VARIABLE);
-
-            $scope = $scopes->getCurrentScope();
-
-            $var = new Variable($tok->id, $token->line);
-            $vp  = $scope->findVariable($var);
-
-            if ($vp) {
-                $vp->usage++;
-                if ($this->_options & (Options::Verbose | Options::Debug)) {
-                    $msg = 'Found existing static Property ' . $vp->id  . ' increase usage: ' . $vp->usage;
-                    printf(DEBUG_PRINT_FORMAT, 'VA', $token->line, $msg);
-                }
-            } else {
-                if ($this->_options & (Options::Verbose | Options::Debug)) {
-                    $msg = 'Found new static Property ' . $tok->id;
                     printf(DEBUG_PRINT_FORMAT, 'VA', $token->line, $msg);
                 }
 
