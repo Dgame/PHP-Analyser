@@ -14,7 +14,8 @@ abstract class Foo
         T_PLUS_EQUAL   => true
     ];
 
-    public static $Foo = null;
+    private static $Foo = null;
+    public static $Bar = null;
 
     public static function IsAssignment(Token $token)
     {

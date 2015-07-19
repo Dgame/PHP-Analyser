@@ -92,6 +92,12 @@ final class Parser
                 return new FunctionAnalyser($this->_detector, $options);
             case T_VARIABLE:
                 return new VariableAnalyser($this->_detector, $options);
+            case T_STRING:
+                if ($token->id != 'self' && $token->id != 'parent') {
+                    return null;
+                }
+            case T_STATIC:
+                return new StaticAnalyser($this->_detector, $options);
         }
 
         return null;
