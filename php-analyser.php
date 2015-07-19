@@ -3,21 +3,34 @@
 require_once 'config.php';
 require_once 'Parser.php';
 
+
+
 if (DEBUG) {
     $p = new Parser(Detect::All);
     $p->parse('test.php', Options::None);
 } else {
     $commands = [
-        'detect-all',
-        'no-init',
-        'undef',
-        'unused',
-        'spell',
-        'verbose',
-        'debug',
+        'detect-all' => 'Detect all supported options',
+        'no-init'    => 'Detects uninitialized variables',
+        'undef'      => 'Detects undefined variables',
+        'unused'     => 'Detects unused variables',
+        'spell'      => 'Detects misspelled words',
+        'verbose'    => 'Verbose output',
+        'debug'      => 'Debug mode',
+        'help'       => 'Print this information'
     ];
 
-    $cmd = getopt(null, $commands);
+    function usage()
+    {
+        global $commands;
+
+        print 'Valid options are:' . PHP_EOL;
+        foreach ($commands as $cmd => $msg) {
+            print "\t" . $cmd . "\t\t" . $msg . PHP_EOL;
+        }
+    }
+
+    $cmd = getopt(null, array_keys($commands));
 
     $options = Options::None;
     $detect  = Detect::None;
@@ -48,6 +61,9 @@ if (DEBUG) {
             case 'debug':
                 $options |= Options::Debug;
             break;
+            case 'help':
+                print usage();
+                exit;
         }
     }
 

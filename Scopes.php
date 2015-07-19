@@ -30,6 +30,8 @@ final class Scopes
 
     public function popScope()
     {
-        $this->_cur_scope = $this->_cur_scope->previous;
+        if ($this->_cur_scope->previous) {
+            $this->_cur_scope = $this->_cur_scope->previous;
+        }
     }
 }
