@@ -29,9 +29,10 @@ final class Parser
             $moved = false;
             $token = $cursor->getCurrentToken();
 
-            if ($token->id == '}') {
-                $scopes->popScope();
-                // print '<pre>' . token_name($scopes->getCurrentScope()->token);
+            if ($token->id == '{') {
+                $scopes->open();
+            } else if ($token->id == '}') {
+                $scopes->close();
             }
 
             // print "\t" . '<pre>' . $token->id . ':' . $token->sym;

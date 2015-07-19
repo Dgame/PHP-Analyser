@@ -28,10 +28,21 @@ final class Scopes
         array_push($this->_scopes, $scope);
     }
 
+    public function open()
+    {
+        $this->_cur_scope->usage++;
+    }
+
+    public function close()
+    {
+        $this->_cur_scope->usage--;
+        if ($this->_cur_scope->usage <= 0) {
+            $this->popScope();
+        }
+    }
+
     public function popScope()
     {
-        if ($this->_cur_scope->previous) {
-            $this->_cur_scope = $this->_cur_scope->previous;
-        }
+        $this->_cur_scope = $this->_cur_scope->previous;
     }
 }

@@ -19,7 +19,7 @@ class AssignmentAnalyser extends Analyser
 
         $moved = false;
         do {
-            if ($tok->type == T_VARIABLE) {
+            if ($tok->type == T_VARIABLE && !Variable::IsException($tok->id)) {
                 $scope = $scopes->getCurrentScope();
 
                 $var = new Variable($tok->id, $tok->line);
@@ -30,11 +30,13 @@ class AssignmentAnalyser extends Analyser
                     $vp->defined = true;
 
                     if ($this->_options & (Options::Verbose | Options::Debug)) {
-                        print '<pre>[AA] ' . $tok->line . ' : Found existing Variable ' . $vp->id  . ' increase usage: ' . $vp->usage;
+                        $msg = 'Found existing Variable ' . $vp->id  . ' increase usage: ' . $vp->usage;
+                        printf(DEBUG_PRINT_FORMAT, 'AA', $tok->line, $msg);
                     }
                 } else {
                     if ($this->_options & (Options::Verbose | Options::Debug)) {
-                        print '<pre>[AA] ' . $tok->line . ' : Found new Variable ' . $tok->id;
+                        $msg = 'Found new Variable ' . $tok->id;
+                        printf(DEBUG_PRINT_FORMAT, 'AA', $tok->line, $msg);
                     }
 
                     $var->assignment = true;

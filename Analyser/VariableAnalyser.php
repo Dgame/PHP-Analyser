@@ -4,24 +4,6 @@ require_once 'Analyser.php';
 
 class VariableAnalyser extends Analyser
 {
-    private static $MagicSuperGlobals = [
-        '$_SERVER'          => true,
-        '$_REQUEST'         => true,
-        '$_POST'            => true,
-        '$_GET'             => true,
-        '$_FILES'           => true,
-        '$_ENV'             => true,
-        '$_COOKIE'          => true,
-        '$_SESSION'         => true,
-        '$GLOBALS'          => true,
-        '$HTTP_ENV_VARS'    => true,
-        '$HTTP_POST_VARS'   => true,
-        '$HTTP_GET_VARS'    => true,
-        '$HTTP_COOKIE_VARS' => true,
-        '$HTTP_SERVER_VARS' => true,
-        '$HTTP_POST_FILES'  => true
-    ];
-
     private static $Properties = [
         T_PRIVATE   => true,
         T_PROTECTED => true,
@@ -39,16 +21,16 @@ class VariableAnalyser extends Analyser
         $token = $cursor->getCurrentToken();
         assert($token->type == T_VARIABLE);
 
-        if (array_key_exists($token->id, self::$MagicSuperGlobals)) {
-            return false; // don't match super globals, they are magic
-        }
-
         if ($token->id == '$this') {
             return $this->_analyseThisDecl($scopes, $cursor);
         }
 
         if ($token->id == 'self' || $token->id == 'static') {
             return $this->_analyseStaticDecl($scopes, $cursor);
+        }
+
+        if (Variable::IsException($token->id)) {
+            return false; // don't match super globals, they are magic
         }
 
         // look behind
@@ -64,11 +46,13 @@ class VariableAnalyser extends Analyser
         if ($vp) {
             $vp->usage++;
             if ($this->_options & (Options::Verbose | Options::Debug)) {
-                print '<pre>[VA] ' . $token->line . ' : Found existing Variable ' . $vp->id  . ' increase usage: ' . $vp->usage;
+                $msg = 'Found existing Variable ' . $vp->id  . ' increase usage: ' . $vp->usage;
+                printf(DEBUG_PRINT_FORMAT, 'VA', $token->line, $msg);
             }
         } else {
             if ($this->_options & (Options::Verbose | Options::Debug)) {
-                print '<pre>[VA] ' . $token->line . ' : Found new Variable ' . $token->id;
+                $msg = 'Found new Variable ' . $token->id;
+                printf(DEBUG_PRINT_FORMAT, 'VA', $token->line, $msg);
             }
 
             $var->usage       = 0;
@@ -109,11 +93,13 @@ class VariableAnalyser extends Analyser
             if ($vp) {
                 $vp->usage++;
                 if ($this->_options & (Options::Verbose | Options::Debug)) {
-                    print '<pre>[VA] ' . $token->line . ' : Found existing Property ' . $vp->id  . ' increase usage: ' . $vp->usage;
+                    $msg = 'Found existing Property ' . $vp->id  . ' increase usage: ' . $vp->usage;
+                    printf(DEBUG_PRINT_FORMAT, 'VA', $token->line, $msg);
                 }
             } else {
                 if ($this->_options & (Options::Verbose | Options::Debug)) {
-                    print '<pre>[VA] ' . $token->line . ' : Found new Property ' . $tok->id;
+                    $msg = 'Found new Property ' . $tok->id;
+                    printf(DEBUG_PRINT_FORMAT, 'VA', $token->line, $msg);
                 }
 
                 $var->defined     = false;
@@ -149,11 +135,13 @@ class VariableAnalyser extends Analyser
             if ($vp) {
                 $vp->usage++;
                 if ($this->_options & (Options::Verbose | Options::Debug)) {
-                    print '<pre>[VA] ' . $token->line . ' : Found existing static Property ' . $vp->id  . ' increase usage: ' . $vp->usage;
+                    $msg = 'Found existing static Property ' . $vp->id  . ' increase usage: ' . $vp->usage;
+                    printf(DEBUG_PRINT_FORMAT, 'VA', $token->line, $msg);
                 }
             } else {
                 if ($this->_options & (Options::Verbose | Options::Debug)) {
-                    print '<pre>[VA] ' . $token->line . ' : Found new static Property ' . $tok->id;
+                    $msg = 'Found new static Property ' . $tok->id;
+                    printf(DEBUG_PRINT_FORMAT, 'VA', $token->line, $msg);
                 }
 
                 $var->defined     = false;

@@ -55,7 +55,8 @@ class FunctionAnalyser extends Analyser
         do {
             if ($tok->type == T_VARIABLE) {
                 if ($this->_options & (Options::Verbose | Options::Debug)) {
-                    print '<pre>[FA] ' . $token->line . ' : Found parameter ' . $tok->id;
+                    $msg = 'Found parameter ' . $tok->id;
+                    printf(DEBUG_PRINT_FORMAT, 'FA', $tok->line, $msg);
                 }
 
                 $var              = new Variable($tok->id, $tok->line);
@@ -78,7 +79,6 @@ class FunctionAnalyser extends Analyser
             }
 
             $scopes->popScope();
-            // print '<pre> ---- ' . token_name($scopes->getCurrentScope()->token);
         }
 
         return true;

@@ -38,7 +38,8 @@ class ClassAnalyser extends Analyser
 
                     if ($tok->type == T_VARIABLE) {
                         if ($this->_options & (Options::Verbose | Options::Debug)) {
-                            print '<pre>[CA] ' . $tok->line . ' : Found new Property ' . $tok->id;
+                            $msg = 'Found new Property ' . $tok->id;
+                            printf(DEBUG_PRINT_FORMAT, 'CA', $tok->line, $msg);
                         }
 
                         $var              = new Variable($tok->id, $tok->line);

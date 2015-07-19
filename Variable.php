@@ -4,6 +4,31 @@ require_once 'Property.php';
 
 final class Variable
 {
+    private static $Exceptions = [
+        '$_SERVER'          => true,
+        '$_REQUEST'         => true,
+        '$_POST'            => true,
+        '$_GET'             => true,
+        '$_FILES'           => true,
+        '$_ENV'             => true,
+        '$_COOKIE'          => true,
+        '$_SESSION'         => true,
+        '$GLOBALS'          => true,
+        '$HTTP_ENV_VARS'    => true,
+        '$HTTP_POST_VARS'   => true,
+        '$HTTP_GET_VARS'    => true,
+        '$HTTP_COOKIE_VARS' => true,
+        '$HTTP_SERVER_VARS' => true,
+        '$HTTP_POST_FILES'  => true,
+        '$this'             => true,
+        '$_'                => true, // for valid unused variables
+    ];
+
+    public static function IsException(string $id)
+    {
+        return array_key_exists($id, self::$Exceptions);
+    }
+
     private $_id   = null;
     private $_line = 0;
 

@@ -4,6 +4,8 @@ require_once 'Property.php';
 
 final class Scope
 {
+    public $usage = 0;
+
     private $_line      = 0;
     private $_token     = 0;
     private $_variables = [];
@@ -11,8 +13,8 @@ final class Scope
 
     public function __construct(int $line, int $token, Scope $previous = null)
     {
-        $this->_line = $line;
-        $this->_token = $token;
+        $this->_line     = $line;
+        $this->_token    = $token;
         $this->_previous = $previous;
     }
 

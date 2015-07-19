@@ -1,6 +1,7 @@
 <?php
 
-trait Property {
+trait Property
+{
     public function __set(string $name, $value)
     {
         throw new Exception('It is not allowed to set ' . $name . ' to ' . $value);
