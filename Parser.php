@@ -31,7 +31,7 @@ final class Parser
 
             if ($token->id == '{') {
                 $scopes->open();
-            } else if ($token->id == '}') {
+            } elseif ($token->id == '}') {
                 $scopes->close();
             }
 
