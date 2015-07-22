@@ -28,6 +28,7 @@ final class VariableAnalyserApproval extends Approval
             return false; // Properties are already visited
         }
 
+        // ignore static variables only if they are properties, because we already scanned them
         if ($prev->type == T_STATIC && $scope->previous && $scope->previous->token == T_CLASS) {
             return false;
         }
