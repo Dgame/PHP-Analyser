@@ -11,18 +11,19 @@ class ClassAnalyser extends Analyser
 
     public function analyse(Scopes $scopes, Cursor $cursor)
     {
-        $token = $cursor->getCurrentToken();
+        $token = $cursor->getCurrent();
         assert($token->type == T_CLASS);
 
         $scope = new Scope($token->line, T_CLASS, $scopes->getCurrentScope());
         $scopes->pushScope($scope);
 
         $cursor->next(); // jump over T_CLASS
-        $token = $cursor->getCurrentToken(); // store the class name
-        $cursor->skipUntil('{');
+        $token = $cursor->getCurrent(); // store the class name
+
+        $this->getInspector()->inspect($cursor, $scope);
 
         $cursor->pushPosition();
-        $tok = $cursor->getCurrentToken();
+        $tok = $cursor->getCurrent();
 
         do {
             switch ($tok->type) {
@@ -31,10 +32,10 @@ class ClassAnalyser extends Analyser
                 case T_PUBLIC:
                 case T_PROTECTED:
                     $prot = $tok->type;
-                    $stat = $this->_checkStaticProperty($cursor, $prot);
+                    $stat = $this->_isStaticProperty($cursor, $prot);
 
                     $cursor->next(); // jump over protection
-                    $tok = $cursor->getCurrentToken();
+                    $tok = $cursor->getCurrent();
 
                     if ($tok->type == T_VARIABLE) {
                         if ($this->_options & (Options::Verbose | Options::Debug)) {
@@ -53,11 +54,11 @@ class ClassAnalyser extends Analyser
 
                         $scope->addVariable($var);
                     }
-                break;
+                    break;
             }
 
             $cursor->next();
-            $tok = $cursor->getCurrentToken();
+            $tok = $cursor->getCurrent();
         } while ($cursor->isValid());
 
         $cursor->popPosition();
@@ -65,9 +66,9 @@ class ClassAnalyser extends Analyser
         return true;
     }
 
-    private function _checkStaticProperty(Cursor $cursor, int& $protection)
+    private function _isStaticProperty(Cursor $cursor, int &$protection)
     {
-        $token = $cursor->getCurrentToken();
+        $token = $cursor->getCurrent();
 
         if ($token->type == T_STATIC) {
             $protection = $cursor->lookBehind()->type;

@@ -24,9 +24,9 @@ final class Variable
         '$_'                => true, // for valid unused variables
     ];
 
-    public static function IsException(string $id)
+    public static function Approve(string $id)
     {
-        return array_key_exists($id, self::$Exceptions);
+        return !array_key_exists($id, self::$Exceptions);
     }
 
     private $_id   = null;

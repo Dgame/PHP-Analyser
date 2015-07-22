@@ -27,6 +27,12 @@ define('T_SELF', 19); // self
 define('T_PARENT', 20); // parent
 define('T_NULL', 21); // null
 
+define('T_AND', 22); // &
+define('T_OR', 23); // |
+define('T_XOR', 24); // ^
+
+define('UNKNOWN_TOKEN', token_name(0));
+
 function get_token_name(int $value)
 {
     $constants = get_defined_constants(true)['user'];
@@ -35,7 +41,7 @@ function get_token_name(int $value)
         return $name;
     }
 
-    return 'UNKNOWN';
+    return UNKNOWN_TOKEN;
 }
 
 final class Tokenizer
@@ -59,6 +65,9 @@ final class Tokenizer
         ']' => T_CLOSE_BRACKET,
         '(' => T_OPEN_PAREN,
         ')' => T_CLOSE_PAREN,
+        '&' => T_AND,
+        '|' => T_OR,
+        '^' => T_XOR,
     ];
 
     private static $SpecialTypedTokens = [
@@ -109,7 +118,7 @@ final class Tokenizer
             return new Token($type, 0, $token, get_token_name($type));
         }
 
-        return new Token(0, 0, $token);
+        return new Token(0, 0, $token, UNKNOWN_TOKEN);
     }
 
     public function getTokens()

@@ -1,6 +1,7 @@
 <?php
 
 require_once 'Property.php';
+require_once 'ScopeInfo.php';
 
 final class Scope
 {
@@ -10,12 +11,25 @@ final class Scope
     private $_token     = 0;
     private $_variables = [];
     private $_previous  = null;
+    private $_info      = null;
 
     public function __construct(int $line, int $token, Scope $previous = null)
     {
+        // the global scope
+        if ($line == 0) {
+            $this->usage = 1;
+        }
+
         $this->_line     = $line;
         $this->_token    = $token;
         $this->_previous = $previous;
+
+        $this->_info = new ScopeInfo();
+    }
+
+    public function getInfo()
+    {
+        return $this->_info;
     }
 
     public function addVariable(Variable $var)

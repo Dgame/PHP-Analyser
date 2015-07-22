@@ -43,3 +43,12 @@ function foo($a, $b)
     $a = $d;
     $c;
 }
+
+for ($i = 0; $i < 4; $i++) {
+
+}
+
+$arr = [1, 2, 3];
+foreach ($arr as $item) {
+    $tmp = $item;
+}

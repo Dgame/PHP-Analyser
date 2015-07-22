@@ -31,6 +31,7 @@ class FunctionAnalyser extends Analyser
         '__set_state'  => true,
         '__clone'      => true,
         '__debugInfo'  => true,
+        '__autoload'   => true,
     ];
 
     public function __construct(Detector $detector, int $options)
@@ -40,18 +41,19 @@ class FunctionAnalyser extends Analyser
 
     public function analyse(Scopes $scopes, Cursor $cursor)
     {
-        $token = $cursor->getCurrentToken();
+        $token = $cursor->getCurrent();
         assert($token->type == T_FUNCTION);
 
         $scope = new Scope($token->line, T_FUNCTION, $scopes->getCurrentScope());
         $scopes->pushScope($scope);
 
         $cursor->next(); // jump over T_FUNCTION
-        $token = $cursor->getCurrentToken(); // store the function name
-        $this->_analyseFunctionName($token);
+        $token = $cursor->getCurrent(); // store the function name
+
+        $this->_analyseFunctionName($scope, $cursor);
 
         $cursor->skipUntil('(');
-        $tok = $cursor->getCurrentToken();
+        $tok = $cursor->getCurrent();
         do {
             if ($tok->type == T_VARIABLE) {
                 if ($this->_options & (Options::Verbose | Options::Debug)) {
@@ -70,7 +72,7 @@ class FunctionAnalyser extends Analyser
             }
 
             $cursor->next();
-            $tok = $cursor->getCurrentToken();
+            $tok = $cursor->getCurrent();
         } while ($cursor->isValid() && !($tok->type == T_OPEN_CURLY || $tok->type == T_SEMICOLON));
 
         if ($tok->type == T_SEMICOLON) {
@@ -84,16 +86,21 @@ class FunctionAnalyser extends Analyser
         return true;
     }
 
-    private function _analyseFunctionName(Token $token)
+    private function _analyseFunctionName(Scope $scope, Cursor $cursor)
     {
+        $token = $cursor->getCurrent(); // the function name
         assert($token->type == T_STRING);
+
+        $this->getInspector()->inspect($cursor, $scope);
 
         if (array_key_exists($token->id, self::$MisspelledMagicNames)) {
             $msg = 'Found "' . $token->id . '", did you mean "' . self::$MagicNames[$token->id] . '"?';
             $this->_detector->addDetection($token, $msg, Detect::PossibleMisspelling);
         } elseif (substr($token->id, 0, 2) == '__' && !array_key_exists($token->id, self::$MagicNames)) {
+            $percent      = 0;
             $last_percent = 0;
             $name         = '';
+
             foreach (self::$MagicNames as $magicName => $_) {
                 similar_text($token->id, $magicName, $percent);
                 if ($last_percent < $percent) {

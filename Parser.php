@@ -11,6 +11,25 @@ require_once 'Analyser/Analyser.php';
 
 final class Parser
 {
+    private static $Assignments = [
+        T_AND_EQUAL    => true,
+        T_OR_EQUAL     => true,
+        T_CONCAT_EQUAL => true,
+        T_DOUBLE_ARROW => true,
+        T_MUL_EQUAL    => true,
+        T_DIV_EQUAL    => true,
+        T_MOD_EQUAL    => true,
+        T_PLUS_EQUAL   => true,
+        T_MINUS_EQUAL  => true,
+        T_XOR_EQUAL    => true,
+        T_EQUAL        => true,
+    ];
+
+    public static function IsAssignment(Token $token)
+    {
+        return array_key_exists($token->type, self::$Assignments);
+    }
+
     private $_detector = null;
 
     public function __construct(int $analyse_options)
@@ -24,9 +43,14 @@ final class Parser
         $tokenizer = new Tokenizer($filename);
         $cursor    = new Cursor($tokenizer->getTokens());
 
+        $line = 0;
+
         do {
             $moved = false;
-            $token = $cursor->getCurrentToken();
+            $token = $cursor->getCurrent();
+
+            if ($token->line != 0)
+                $line = $token->line;
 
             if ($token->type == T_OPEN_CURLY) {
                 $scopes->open();
@@ -53,7 +77,7 @@ final class Parser
 
     private function _getAnalyserFor(Token $token, int $options)
     {
-        if (Analyser::IsAssignment($token)) {
+        if (self::IsAssignment($token)) {
             return new AssignmentAnalyser($this->_detector, $options);
         }
 

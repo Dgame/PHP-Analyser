@@ -11,17 +11,19 @@ class StaticAnalyser extends Analyser
 
     public function analyse(Scopes $scopes, Cursor $cursor)
     {
-        $token = $cursor->getCurrentToken();
+        $token = $cursor->getCurrent();
         assert($token->type == T_SELF || $token->type == T_PARENT || $token->type == T_STATIC);
 
         $cursor->next(); // jump over
-        $tok = $cursor->getCurrentToken();
+        $tok = $cursor->getCurrent();
 
         if ($tok->type == T_DOUBLE_COLON) { // self/static/parent access
             $cursor->next();
-            $tok = $cursor->getCurrentToken();
+            $tok = $cursor->getCurrent();
 
-            assert($tok->type == T_VARIABLE);
+            if ($tok->type != T_VARIABLE) {
+                return true;
+            }
 
             $scope = $scopes->getCurrentScope();
 
@@ -31,7 +33,7 @@ class StaticAnalyser extends Analyser
             if ($vp) {
                 $vp->usage++;
                 if ($this->_options & (Options::Verbose | Options::Debug)) {
-                    $msg = 'Found existing static Property ' . $vp->id  . ' increase usage: ' . $vp->usage;
+                    $msg = 'Found existing static Property ' . $vp->id . ' increase usage: ' . $vp->usage;
                     printf(DEBUG_PRINT_FORMAT, 'SA', $token->line, $msg);
                 }
             } else {

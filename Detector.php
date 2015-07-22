@@ -26,15 +26,15 @@ final class Detector
                 printf(PRINT_FORMAT, $detection->msg, $detection->line);
             }
         }
-
+        
         foreach ($scopes->getAllScopes() as $scope) {
             foreach ($scope->variables as $var) {
                 if ($this->_options & Detect::Undefined) {
-                    $this->_detectUndefined($var);
+                    $this->_detectUndefined($scope, $var);
                 }
 
                 if ($this->_options & Detect::Uninitialized) {
-                    $this->_detectUninitialized($var);
+                    $this->_detectUninitialized($scope, $var);
                 }
 
                 if ($this->_options & Detect::Unused) {
@@ -44,16 +44,34 @@ final class Detector
         }
     }
 
-    private function _detectUndefined(Variable $var)
+    private function _detectUndefined(Scope $scope, Variable $var)
     {
         if (!$var->defined && ($var->assignment || $var->property || $var->parameter)) {
+            if ($var->property) {
+                // $scope is the scope of the function/method which contains the property call
+                // so $scope->previous is the class scope
+                $info = $scope->previous->getInfo();
+                if ($info->is_child_class || $info->has_magic_get || $info->has_magic_set) {
+                    return;
+                }
+            }
+
             printf(PRINT_FORMAT, $var . ' is undefined', $var->line);
         }
     }
 
-    private function _detectUninitialized(Variable $var)
+    private function _detectUninitialized(Scope $scope, Variable $var)
     {
         if (!$var->initialized) {
+            if ($var->property) {
+                // $scope is the scope of the function/method which contains the property call
+                // so $scope->previous is the class scope
+                $info = $scope->previous->getInfo();
+                if ($info->is_child_class || $info->has_magic_get || $info->has_magic_set) {
+                    return;
+                }
+            }
+
             printf(PRINT_FORMAT, $var . ' is unintialized', $var->line);
         }
     }

@@ -4,13 +4,6 @@ require_once 'Analyser.php';
 
 class VariableAnalyser extends Analyser
 {
-    private static $Properties = [
-        T_PRIVATE   => true,
-        T_PROTECTED => true,
-        T_PUBLIC    => true,
-        T_STATIC    => true
-    ];
-
     public function __construct(Detector $detector, int $options)
     {
         parent::__construct($detector, $options);
@@ -18,20 +11,15 @@ class VariableAnalyser extends Analyser
 
     public function analyse(Scopes $scopes, Cursor $cursor)
     {
-        $token = $cursor->getCurrentToken();
+        $token = $cursor->getCurrent();
         assert($token->type == T_VARIABLE);
+
+        if (!$this->getApproval()->approve($cursor)) {
+            return false;
+        }
 
         if ($token->id == '$this') {
             return $this->_analyseThisDecl($scopes, $cursor);
-        }
-
-        if (Variable::IsException($token->id)) {
-            return false; // don't match super globals, they are magic
-        }
-
-        // look behind
-        if (array_key_exists($cursor->lookBehind()->type, self::$Properties)) {
-            return false;// Properties are already visited
         }
 
         $scope = $scopes->getCurrentScope();
@@ -40,9 +28,14 @@ class VariableAnalyser extends Analyser
         $vp  = $scope->findVariable($var);
 
         if ($vp) {
-            $vp->usage++;
-            if ($this->_options & (Options::Verbose | Options::Debug)) {
-                $msg = 'Found existing Variable ' . $vp->id  . ' increase usage: ' . $vp->usage;
+            if ($vp->defined) {
+                $vp->usage++;
+                if ($this->_options & (Options::Verbose | Options::Debug)) {
+                    $msg = 'Found existing Variable ' . $vp->id . ' increase usage: ' . $vp->usage;
+                    printf(DEBUG_PRINT_FORMAT, 'VA', $token->line, $msg);
+                }
+            } elseif ($this->_options & (Options::Verbose | Options::Debug)) {
+                $msg = 'Found existing but undefined Variable ' . $vp->id;
                 printf(DEBUG_PRINT_FORMAT, 'VA', $token->line, $msg);
             }
         } else {
@@ -52,8 +45,10 @@ class VariableAnalyser extends Analyser
             }
 
             $var->usage       = 0;
-            $var->initialized = $this->_findInitializer($cursor);
+            $var->initialized = $this->_alwaysInitialized($cursor) || $this->_findInitializer($cursor);
             $var->defined     = true; // Default auf true
+
+            // print "\t" . 'Initialized: ' . (int) $this->_alwaysInitialized($cursor) . ':' . (int) $var->initialized . PHP_EOL;
 
             $scope->addVariable($var);
         }
@@ -65,20 +60,15 @@ class VariableAnalyser extends Analyser
 
     private function _analyseThisDecl(Scopes $scopes, Cursor $cursor)
     {
-        $token = $cursor->getCurrentToken();
+        $token = $cursor->getCurrent();
         assert($token->id == '$this');
 
         $cursor->next(); // jump over '$this'
-        $tok = $cursor->getCurrentToken();
+        $tok = $cursor->getCurrent();
         if ($tok->type == T_OBJECT_OPERATOR) {
             $cursor->next(); // jump over '->'
+            $tok = $cursor->getCurrent();
 
-            // look ahead
-            if ($cursor->lookAhead()->id == '(') {
-                return; // it's a function call
-            }
-
-            $tok   = $cursor->getCurrentToken();
             $scope = $scopes->getCurrentScope();
 
             assert($tok->type == T_STRING);
@@ -87,9 +77,14 @@ class VariableAnalyser extends Analyser
             $vp  = $scope->findVariable($var);
 
             if ($vp) {
-                $vp->usage++;
-                if ($this->_options & (Options::Verbose | Options::Debug)) {
-                    $msg = 'Found existing Property ' . $vp->id  . ' increase usage: ' . $vp->usage;
+                if ($vp->defined) {
+                    $vp->usage++;
+                    if ($this->_options & (Options::Verbose | Options::Debug)) {
+                        $msg = 'Found existing Property ' . $vp->id . ' increase usage: ' . $vp->usage;
+                        printf(DEBUG_PRINT_FORMAT, 'VA', $token->line, $msg);
+                    }
+                } elseif ($this->_options & (Options::Verbose | Options::Debug)) {
+                    $msg = 'Found existing but undefined property ' . $vp->id;
                     printf(DEBUG_PRINT_FORMAT, 'VA', $token->line, $msg);
                 }
             } else {

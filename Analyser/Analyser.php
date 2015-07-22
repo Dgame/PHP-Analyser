@@ -1,34 +1,33 @@
 <?php
 
+require_once 'Approval/Approval.php';
+require_once 'Inspector/Inspector.php';
+
 function __autoload($class_name)
 {
-    require_once 'Analyser/' . $class_name . '.php';
+    static $directories = [
+        'Analyser',
+        'Analyser' . DIRECTORY_SEPARATOR . 'Inspector',
+        'Analyser' . DIRECTORY_SEPARATOR . 'Approval',
+    ];
+
+    foreach ($directories as $dir) {
+        $filename = PHP_ANALYSER_PATH . $dir . DIRECTORY_SEPARATOR . $class_name . '.php';
+        if (file_exists($filename)) {
+            require_once $filename;
+            break;
+        }
+    }
 }
 
-require_once 'Detector.php';
-require_once 'Variable.php';
-require_once 'Options.php';
+require_once PHP_ANALYSER_PATH . 'Detector.php';
+require_once PHP_ANALYSER_PATH . 'Variable.php';
+require_once PHP_ANALYSER_PATH . 'Options.php';
 
 abstract class Analyser
 {
-    private static $Assignments = [
-        T_AND_EQUAL    => true,
-        T_OR_EQUAL     => true,
-        T_CONCAT_EQUAL => true,
-        T_DOUBLE_ARROW => true,
-        T_MUL_EQUAL    => true,
-        T_DIV_EQUAL    => true,
-        T_MOD_EQUAL    => true,
-        T_PLUS_EQUAL   => true,
-        T_MINUS_EQUAL  => true,
-        T_XOR_EQUAL    => true,
-        T_EQUAL        => true,
-    ];
-
-    public static function IsAssignment(Token $token)
-    {
-        return array_key_exists($token->type, self::$Assignments);
-    }
+    private $_approval  = null;
+    private $_inspector = null;
 
     protected $_detector = null;
     protected $_options  = 0;
@@ -39,24 +38,54 @@ abstract class Analyser
         $this->_options  = $options;
     }
 
+    final public function getApproval()
+    {
+        if (!$this->_approval) {
+            $this->_approval = Approval::Create(get_called_class());
+        }
+
+        return $this->_approval;
+    }
+
+    final public function getInspector()
+    {
+        if (!$this->_inspector) {
+            $this->_inspector = Inspector::Create(get_called_class());
+        }
+
+        return $this->_inspector;
+    }
+
     abstract public function analyse(Scopes $scopes, Cursor $cursor);
 
     final protected function _findInitializer(Cursor $cursor)
     {
         $cursor->pushPosition();
 
-        $tok = $cursor->getCurrentToken();
+        $tok = $cursor->getCurrent();
         for (; $cursor->isValid() && $tok->type != T_SEMICOLON; $cursor->next()) {
-            if (self::IsAssignment($tok)) {
+            if (Parser::IsAssignment($tok)) {
                 $cursor->popPosition();
 
                 return true;
             }
 
-            $tok = $cursor->getCurrentToken();
+            $tok = $cursor->getCurrent();
         }
 
         $cursor->popPosition();
+
+        return false;
+    }
+
+    final protected function _alwaysInitialized(Cursor $cursor)
+    {
+        // look ahead
+        $next = $cursor->lookAhead();
+        if ($next->type == T_CLOSE_PAREN || $next->type == T_DOUBLE_ARROW) {
+            // it is in an foreach statement, e.g. foreach ($arr as $var) or foreach ($arr as $v => $k)
+            return true;
+        }
 
         return false;
     }

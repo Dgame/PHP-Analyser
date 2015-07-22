@@ -43,6 +43,11 @@ final class Scopes
 
     public function popScope()
     {
+        // the global scope cannot be removed for valid files
+        if (!$this->_cur_scope->previous) {
+            throw new Exception('Unbalanced curlies');
+        }
+
         $this->_cur_scope = $this->_cur_scope->previous;
     }
 }

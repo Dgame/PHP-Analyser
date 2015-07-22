@@ -11,27 +11,32 @@ class AssignmentAnalyser extends Analyser
 
     public function analyse(Scopes $scopes, Cursor $cursor)
     {
-        $token = $cursor->getCurrentToken();
-        assert(parent::IsAssignment($token));
+        $token = $cursor->getCurrent();
+        assert(Parser::IsAssignment($token));
 
         $cursor->next(); // jump over assignment
-        $tok = $cursor->getCurrentToken();
+        $tok = $cursor->getCurrent();
 
         $moved = false;
         do {
-            if ($tok->type == T_VARIABLE && !Variable::IsException($tok->id)) {
+            if ($tok->type == T_VARIABLE && Variable::Approve($tok->id)) {
                 $scope = $scopes->getCurrentScope();
 
                 $var = new Variable($tok->id, $tok->line);
                 $vp  = $scope->findVariable($var);
 
                 if ($vp) {
-                    $vp->usage++;
-                    $vp->defined = true;
+                    if ($vp->defined) {
+                        $vp->usage++;
+                        $vp->defined = true;
 
-                    if ($this->_options & (Options::Verbose | Options::Debug)) {
-                        $msg = 'Found existing Variable ' . $vp->id  . ' increase usage: ' . $vp->usage;
-                        printf(DEBUG_PRINT_FORMAT, 'AA', $tok->line, $msg);
+                        if ($this->_options & (Options::Verbose | Options::Debug)) {
+                            $msg = 'Found existing Variable ' . $vp->id . ' increase usage: ' . $vp->usage;
+                            printf(DEBUG_PRINT_FORMAT, 'AA', $tok->line, $msg);
+                        }
+                    } elseif ($this->_options & (Options::Verbose | Options::Debug)) {
+                        $msg = 'Found existing but undefined Variable ' . $vp->id;
+                        printf(DEBUG_PRINT_FORMAT, 'VA', $token->line, $msg);
                     }
                 } else {
                     if ($this->_options & (Options::Verbose | Options::Debug)) {
@@ -49,7 +54,7 @@ class AssignmentAnalyser extends Analyser
             $moved = true;
 
             $cursor->next();
-            $tok = $cursor->getCurrentToken();
+            $tok = $cursor->getCurrent();
         } while ($cursor->isValid() && $tok->type != T_SEMICOLON);
 
         return $moved;

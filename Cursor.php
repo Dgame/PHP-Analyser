@@ -24,7 +24,7 @@ final class Cursor
         return $this->_cur_pos < $this->_tok_count;
     }
 
-    public function getCurrentToken()
+    public function getCurrent()
     {
         if ($this->isValid()) {
             return $this->_tokens[$this->_cur_pos];
@@ -43,7 +43,7 @@ final class Cursor
     public function lookAhead()
     {
         $this->next();
-        $next_token = $this->getCurrentToken();
+        $next_token = $this->getCurrent();
         $this->previous();
 
         return $next_token;
@@ -59,7 +59,7 @@ final class Cursor
     public function lookBehind()
     {
         $this->previous();
-        $prev_token = $this->getCurrentToken();
+        $prev_token = $this->getCurrent();
         $this->next();
 
         return $prev_token;
@@ -77,9 +77,29 @@ final class Cursor
         // print '<pre>Load position: ' . $this->_cur_pos;
     }
 
-    public function skipUntil(string $id)
+    public function __call(string $name, array $args)
     {
-        for (; $this->isValid() && $this->getCurrentToken()->id != $id; $this->next()) {
+        if ($name == 'skipUntil') {
+            $param = array_pop($args);
+            if (is_int($param)) {
+                return $this->skipUntilType((int) $param);
+            }
+
+            return $this->skipUntilID($param);
+        }
+
+        throw new Exception('No such method: ' . $name);
+    }
+
+    public function skipUntilID(string $id)
+    {
+        for (; $this->isValid() && $this->getCurrent()->id != $id; $this->next()) {
+        }
+    }
+
+    public function skipUntilType(int $type)
+    {
+        for (; $this->isValid() && $this->getCurrent()->type != $type; $this->next()) {
         }
     }
 }
