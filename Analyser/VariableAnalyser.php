@@ -14,15 +14,15 @@ class VariableAnalyser extends Analyser
         $token = $cursor->getCurrent();
         assert($token->type == T_VARIABLE);
 
-        if (!$this->getApproval()->approve($cursor)) {
+        $scope = $scopes->getCurrentScope();
+
+        if (!$this->getApproval()->approve($cursor, $scope)) {
             return false;
         }
 
         if ($token->id == '$this') {
             return $this->_analyseThisDecl($scopes, $cursor);
         }
-
-        $scope = $scopes->getCurrentScope();
 
         $var = new Variable($token->id, $token->line);
         $vp  = $scope->findVariable($var);
@@ -45,10 +45,8 @@ class VariableAnalyser extends Analyser
             }
 
             $var->usage       = 0;
-            $var->initialized = $this->_alwaysInitialized($cursor) || $this->_findInitializer($cursor);
+            $var->initialized = $this->_isAlwaysInitialized($cursor) || $this->_findInitializer($cursor);
             $var->defined     = true; // Default auf true
-
-            // print "\t" . 'Initialized: ' . (int) $this->_alwaysInitialized($cursor) . ':' . (int) $var->initialized . PHP_EOL;
 
             $scope->addVariable($var);
         }

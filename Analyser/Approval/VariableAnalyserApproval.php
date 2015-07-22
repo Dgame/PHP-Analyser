@@ -8,10 +8,9 @@ final class VariableAnalyserApproval extends Approval
         T_PRIVATE   => true,
         T_PROTECTED => true,
         T_PUBLIC    => true,
-        T_STATIC    => true,
     ];
 
-    public function approve(Cursor $cursor)
+    public function approve(Cursor $cursor, Scope $scope)
     {
         $token = $cursor->getCurrent();
 
@@ -24,8 +23,13 @@ final class VariableAnalyserApproval extends Approval
         }
 
         // look behind
-        if (array_key_exists($cursor->lookBehind()->type, self::$Properties)) {
+        $prev = $cursor->lookBehind();
+        if (array_key_exists($prev->type, self::$Properties)) {
             return false; // Properties are already visited
+        }
+
+        if ($prev->type == T_STATIC && $scope->previous && $scope->previous->token == T_CLASS) {
+            return false;
         }
 
         return true;

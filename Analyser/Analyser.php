@@ -78,8 +78,11 @@ abstract class Analyser
         return false;
     }
 
-    final protected function _alwaysInitialized(Cursor $cursor)
+    final protected function _isAlwaysInitialized(Cursor $cursor)
     {
+        $token = $cursor->getCurrent();
+        assert($token->type == T_VARIABLE);
+
         // look ahead
         $next = $cursor->lookAhead();
         if ($next->type == T_CLOSE_PAREN || $next->type == T_DOUBLE_ARROW) {

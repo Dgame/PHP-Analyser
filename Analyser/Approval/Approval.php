@@ -2,7 +2,7 @@
 
 abstract class Approval
 {
-    abstract public function approve(Cursor $cursor);
+    abstract public function approve(Cursor $cursor, Scope $scope);
 
     public static function Create(string $class_name)
     {
