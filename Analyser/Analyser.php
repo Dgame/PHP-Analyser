@@ -22,11 +22,12 @@ abstract class Analyser
         T_PLUS_EQUAL   => true,
         T_MINUS_EQUAL  => true,
         T_XOR_EQUAL    => true,
+        T_EQUAL        => true,
     ];
 
     public static function IsAssignment(Token $token)
     {
-        return array_key_exists($token->type, self::$Assignments) || $token->id == '=';
+        return array_key_exists($token->type, self::$Assignments);
     }
 
     protected $_detector = null;
@@ -45,7 +46,7 @@ abstract class Analyser
         $cursor->pushPosition();
 
         $tok = $cursor->getCurrentToken();
-        for (; $cursor->isValid() && $tok->id != ';'; $cursor->next()) {
+        for (; $cursor->isValid() && $tok->type != T_SEMICOLON; $cursor->next()) {
             if (self::IsAssignment($tok)) {
                 $cursor->popPosition();
 

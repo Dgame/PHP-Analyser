@@ -50,7 +50,7 @@ class AssignmentAnalyser extends Analyser
 
             $cursor->next();
             $tok = $cursor->getCurrentToken();
-        } while ($cursor->isValid() && $tok->id != ';');
+        } while ($cursor->isValid() && $tok->type != T_SEMICOLON);
 
         return $moved;
     }

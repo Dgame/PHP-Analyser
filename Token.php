@@ -9,12 +9,12 @@ final class Token
     private $_id   = '';
     private $_sym  = '';
 
-    public function __construct(int $type, int $line, string $id)
+    public function __construct(int $type, int $line, string $id, string $sym)
     {
         $this->_type = $type;
         $this->_line = $line;
         $this->_id   = $id;
-        $this->_sym  = token_name($type);
+        $this->_sym  = $sym;
     }
 
     use Property;

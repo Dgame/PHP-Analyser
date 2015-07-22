@@ -12,7 +12,7 @@ class StaticAnalyser extends Analyser
     public function analyse(Scopes $scopes, Cursor $cursor)
     {
         $token = $cursor->getCurrentToken();
-        assert($token->id == 'self' || $token->id == 'static' || $token->id == 'parent');
+        assert($token->type == T_SELF || $token->type == T_PARENT || $token->type == T_STATIC);
 
         $cursor->next(); // jump over
         $tok = $cursor->getCurrentToken();

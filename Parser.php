@@ -3,7 +3,7 @@
 error_reporting(E_ALL);
 
 require_once 'basic_type_hint.php';
-require_once 'Token.php';
+require_once 'Tokenizer.php';
 require_once 'Cursor.php';
 require_once 'Scopes.php';
 require_once 'Detector.php';
@@ -20,18 +20,17 @@ final class Parser
 
     public function parse(string $filename, $options = 0)
     {
-        $scopes = new Scopes();
-
-        $tokens = $this->_processTokens($filename);
-        $cursor = new Cursor($tokens);
+        $scopes    = new Scopes();
+        $tokenizer = new Tokenizer($filename);
+        $cursor    = new Cursor($tokenizer->getTokens());
 
         do {
             $moved = false;
             $token = $cursor->getCurrentToken();
 
-            if ($token->id == '{') {
+            if ($token->type == T_OPEN_CURLY) {
                 $scopes->open();
-            } elseif ($token->id == '}') {
+            } elseif ($token->type == T_CLOSE_CURLY) {
                 $scopes->close();
             }
 
@@ -52,33 +51,6 @@ final class Parser
         $this->_detector->detectIn($scopes);
     }
 
-    private function _processTokens(string $filename)
-    {
-        $content      = file_get_contents($filename);
-        $input_tokens = token_get_all($content);
-
-        $output_tokens = [];
-        foreach ($input_tokens as $token_data) {
-            $token = $this->_createTokenObject($token_data);
-            if ($token->type != T_WHITESPACE) {
-                $output_tokens[] = $token;
-            }
-        }
-
-        return $output_tokens;
-    }
-
-    private function _createTokenObject($token_data)
-    {
-        if (is_array($token_data)) {
-            list($type, $id, $line) = $token_data;
-
-            return new Token($type, $line, $id);
-        }
-
-        return new Token(0, 0, $token_data);
-    }
-
     private function _getAnalyserFor(Token $token, int $options)
     {
         if (Analyser::IsAssignment($token)) {
@@ -92,10 +64,8 @@ final class Parser
                 return new FunctionAnalyser($this->_detector, $options);
             case T_VARIABLE:
                 return new VariableAnalyser($this->_detector, $options);
-            case T_STRING:
-                if ($token->id != 'self' && $token->id != 'parent') {
-                    return null;
-                }
+            case T_SELF:
+            case T_PARENT:
             case T_STATIC:
                 return new StaticAnalyser($this->_detector, $options);
         }

@@ -5,14 +5,14 @@ require_once 'Analyser.php';
 class FunctionAnalyser extends Analyser
 {
     private static $MisspelledMagicNames = [
-        'construct'     => '__construct',
-        '_construct'    => '__construct',
-        'constructor'   => '__construct',
-        '_constructor'  => '__construct',
-        'destruct'      => '__destruct',
-        '_destruct'     => '__destruct',
-        'destructor'    => '__destruct',
-        '_destructor'   => '__destruct',
+        'construct'    => '__construct',
+        '_construct'   => '__construct',
+        'constructor'  => '__construct',
+        '_constructor' => '__construct',
+        'destruct'     => '__destruct',
+        '_destruct'    => '__destruct',
+        'destructor'   => '__destruct',
+        '_destructor'  => '__destruct',
     ];
 
     private static $MagicNames = [
@@ -71,9 +71,9 @@ class FunctionAnalyser extends Analyser
 
             $cursor->next();
             $tok = $cursor->getCurrentToken();
-        } while ($cursor->isValid() && !($tok->id == '{' || $tok->id == ';'));
+        } while ($cursor->isValid() && !($tok->type == T_OPEN_CURLY || $tok->type == T_SEMICOLON));
 
-        if ($tok->id == ';') {
+        if ($tok->type == T_SEMICOLON) {
             foreach ($scope->variables as $var) {
                 $var->state = T_ABSTRACT;
             }
@@ -91,14 +91,14 @@ class FunctionAnalyser extends Analyser
         if (array_key_exists($token->id, self::$MisspelledMagicNames)) {
             $msg = 'Found "' . $token->id . '", did you mean "' . self::$MagicNames[$token->id] . '"?';
             $this->_detector->addDetection($token, $msg, Detect::PossibleMisspelling);
-        } else if (substr($token->id, 0, 2) == '__' && !array_key_exists($token->id, self::$MagicNames)) {
+        } elseif (substr($token->id, 0, 2) == '__' && !array_key_exists($token->id, self::$MagicNames)) {
             $last_percent = 0;
-            $name = '';
+            $name         = '';
             foreach (self::$MagicNames as $magicName => $_) {
                 similar_text($token->id, $magicName, $percent);
                 if ($last_percent < $percent) {
                     $last_percent = $percent;
-                    $name = $magicName;
+                    $name         = $magicName;
                 }
             }
 
