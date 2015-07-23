@@ -4,6 +4,8 @@ require_once 'Analyser.php';
 
 class AssignmentAnalyser extends Analyser
 {
+    const ID = 'AA';
+    
     public function __construct(Detector $detector, int $options)
     {
         parent::__construct($detector, $options);
@@ -30,19 +32,12 @@ class AssignmentAnalyser extends Analyser
                         $vp->usage++;
                         $vp->defined = true;
 
-                        if ($this->_options & (Options::Verbose | Options::Debug)) {
-                            $msg = 'Found existing Variable ' . $vp->id . ' increase usage: ' . $vp->usage;
-                            printf(DEBUG_PRINT_FORMAT, 'AA', $tok->line, $msg);
-                        }
-                    } elseif ($this->_options & (Options::Verbose | Options::Debug)) {
-                        $msg = 'Found existing but undefined Variable ' . $vp->id;
-                        printf(DEBUG_PRINT_FORMAT, 'VA', $token->line, $msg);
+                        $this->_debug->log(self::ID, $token->line, Debug::VarExists, $vp->id, $vp->usage);
+                    } else {
+                        $this->_debug->log(self::ID, $token->line, Debug::VarExistsUndefined, $vp->id);
                     }
                 } else {
-                    if ($this->_options & (Options::Verbose | Options::Debug)) {
-                        $msg = 'Found new Variable ' . $tok->id;
-                        printf(DEBUG_PRINT_FORMAT, 'AA', $tok->line, $msg);
-                    }
+                    $this->_debug->log(self::ID, $token->line, Debug::VarNew, $token->id);
 
                     $var->assignment = true;
                     $var->defined    = false;

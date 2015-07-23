@@ -4,6 +4,8 @@ require_once 'Analyser.php';
 
 class StaticAnalyser extends Analyser
 {
+    const ID = 'SA';
+
     public function __construct(Detector $detector, int $options)
     {
         parent::__construct($detector, $options);
@@ -32,18 +34,13 @@ class StaticAnalyser extends Analyser
 
             if ($vp) {
                 $vp->usage++;
-                if ($this->_options & (Options::Verbose | Options::Debug)) {
-                    $msg = 'Found existing static Property ' . $vp->id . ' increase usage: ' . $vp->usage;
-                    printf(DEBUG_PRINT_FORMAT, 'SA', $token->line, $msg);
-                }
-            } else {
-                if ($this->_options & (Options::Verbose | Options::Debug)) {
-                    $msg = 'Found new static Property ' . $tok->id;
-                    printf(DEBUG_PRINT_FORMAT, 'SA', $token->line, $msg);
-                }
 
-                $var->defined     = false;
-                $var->property    = true;
+                $this->_debug->log(self::ID, $token->line, Debug::PropertyStaticExists, $vp->id, $vp->usage);
+            } else {
+                $this->_debug->log(self::ID, $token->line, Debug::PropertyStaticNew, $vp->id);
+
+                $var->defined = false;
+                $var->property = true;
                 $var->initialized = $this->_findInitializer($cursor);
 
                 $scope->addVariable($var);

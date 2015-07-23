@@ -42,6 +42,7 @@ final class Variable
     public $assignment  = false;
     public $parameter   = false;
     public $property    = false;
+    public $reference   = false;
 
     public function __construct(string $id, int $line)
     {

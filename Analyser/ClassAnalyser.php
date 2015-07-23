@@ -4,6 +4,8 @@ require_once 'Analyser.php';
 
 class ClassAnalyser extends Analyser
 {
+    const ID = 'CA';
+
     public function __construct(Detector $detector, int $options)
     {
         parent::__construct($detector, $options);
@@ -38,10 +40,7 @@ class ClassAnalyser extends Analyser
                     $tok = $cursor->getCurrent();
 
                     if ($tok->type == T_VARIABLE) {
-                        if ($this->_options & (Options::Verbose | Options::Debug)) {
-                            $msg = 'Found new Property ' . $tok->id;
-                            printf(DEBUG_PRINT_FORMAT, 'CA', $tok->line, $msg);
-                        }
+                        $this->_debug->log(self::ID, $tok->line, Debug::PropertyNew, $tok->id);
 
                         $var              = new Variable($tok->id, $tok->line);
                         $var->protection  = $prot;

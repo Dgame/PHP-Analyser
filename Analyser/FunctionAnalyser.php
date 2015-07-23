@@ -4,6 +4,8 @@ require_once 'Analyser.php';
 
 class FunctionAnalyser extends Analyser
 {
+    const ID = 'FA';
+
     private static $MisspelledMagicNames = [
         'construct'    => '__construct',
         '_construct'   => '__construct',
@@ -52,14 +54,11 @@ class FunctionAnalyser extends Analyser
 
         $this->_analyseFunctionName($scope, $cursor);
 
-        $cursor->skipUntil('(');
+        $cursor->skipUntil(T_OPEN_PAREN);
         $tok = $cursor->getCurrent();
         do {
             if ($tok->type == T_VARIABLE) {
-                if ($this->_options & (Options::Verbose | Options::Debug)) {
-                    $msg = 'Found parameter ' . $tok->id;
-                    printf(DEBUG_PRINT_FORMAT, 'FA', $tok->line, $msg);
-                }
+                $this->_debug->log(self::ID, $tok->line, Debug::ParamNew, $tok->id);
 
                 $var              = new Variable($tok->id, $tok->line);
                 $var->location    = 'function:' . $token->id;

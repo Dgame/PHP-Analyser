@@ -22,7 +22,7 @@ function __autoload($class_name)
 
 require_once PHP_ANALYSER_PATH . 'Detector.php';
 require_once PHP_ANALYSER_PATH . 'Variable.php';
-require_once PHP_ANALYSER_PATH . 'Options.php';
+require_once PHP_ANALYSER_PATH . 'Debug.php';
 
 abstract class Analyser
 {
@@ -30,12 +30,12 @@ abstract class Analyser
     private $_inspector = null;
 
     protected $_detector = null;
-    protected $_options  = 0;
+    protected $_debug = null;
 
     public function __construct(Detector $detector, int $options)
     {
         $this->_detector = $detector;
-        $this->_options  = $options;
+        $this->_debug = new Debug($options);
     }
 
     final public function getApproval()
