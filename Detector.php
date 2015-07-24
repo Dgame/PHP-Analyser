@@ -26,7 +26,7 @@ final class Detector
                 printf(PRINT_FORMAT, $detection->msg, $detection->line);
             }
         }
-        
+
         foreach ($scopes->getAllScopes() as $scope) {
             foreach ($scope->variables as $var) {
                 if ($this->_options & Detect::Undefined) {
@@ -48,11 +48,12 @@ final class Detector
     {
         if (!$var->defined && ($var->assignment || $var->property || $var->parameter)) {
             if ($var->property) {
-                // $scope is the scope of the function/method which contains the property call
-                // so $scope->previous is the class scope
-                $info = $scope->previous->getInfo();
-                if ($info->is_child_class || $info->has_magic_get || $info->has_magic_set) {
-                    return;
+                $sc = $scope->findPrevious(T_CLASS);
+                if ($sc) {
+                    $info = $sc->getInfo();
+                    if ($info->is_child_class || $info->has_magic_get || $info->has_magic_set) {
+                        return;
+                    }
                 }
             }
 
@@ -64,11 +65,12 @@ final class Detector
     {
         if (!$var->initialized) {
             if ($var->property) {
-                // $scope is the scope of the function/method which contains the property call
-                // so $scope->previous is the class scope
-                $info = $scope->previous->getInfo();
-                if ($info->is_child_class || $info->has_magic_get || $info->has_magic_set) {
-                    return;
+                $sc = $scope->findPrevious(T_CLASS);
+                if ($sc) {
+                    $info = $sc->getInfo();
+                    if ($info->is_child_class || $info->has_magic_get || $info->has_magic_set) {
+                        return;
+                    }
                 }
             }
 

@@ -5,7 +5,7 @@ require_once 'Analyser.php';
 class AssignmentAnalyser extends Analyser
 {
     const ID = 'AA';
-    
+
     public function __construct(Detector $detector, int $options)
     {
         parent::__construct($detector, $options);
@@ -20,7 +20,7 @@ class AssignmentAnalyser extends Analyser
         $tok = $cursor->getCurrent();
 
         $moved = false;
-        do {
+        while ($cursor->isValid() && $tok->type != T_SEMICOLON) {
             if ($tok->type == T_VARIABLE && Variable::Approve($tok->id)) {
                 $scope = $scopes->getCurrentScope();
 
@@ -32,12 +32,12 @@ class AssignmentAnalyser extends Analyser
                         $vp->usage++;
                         $vp->defined = true;
 
-                        $this->_debug->log(self::ID, $token->line, Debug::VarExists, $vp->id, $vp->usage);
+                        $this->_debug->log(self::ID, $tok->line, Debug::VarExists, $vp->id, $vp->usage);
                     } else {
-                        $this->_debug->log(self::ID, $token->line, Debug::VarExistsUndefined, $vp->id);
+                        $this->_debug->log(self::ID, $tok->line, Debug::VarExistsUndefined, $vp->id);
                     }
                 } else {
-                    $this->_debug->log(self::ID, $token->line, Debug::VarNew, $token->id);
+                    $this->_debug->log(self::ID, $tok->line, Debug::VarNew, $tok->id);
 
                     $var->assignment = true;
                     $var->defined    = false;
@@ -50,7 +50,7 @@ class AssignmentAnalyser extends Analyser
 
             $cursor->next();
             $tok = $cursor->getCurrent();
-        } while ($cursor->isValid() && $tok->type != T_SEMICOLON);
+        }
 
         return $moved;
     }

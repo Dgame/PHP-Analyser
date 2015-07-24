@@ -7,8 +7,9 @@ final class Scope
 {
     public $usage = 0;
 
-    private $_line      = 0;
-    private $_token     = 0;
+    private $_line  = 0;
+    private $_token = 0;
+
     private $_variables = [];
     private $_previous  = null;
     private $_info      = null;
@@ -30,6 +31,19 @@ final class Scope
     public function getInfo()
     {
         return $this->_info;
+    }
+
+    public function findPrevious(int $token)
+    {
+        $scope = $this->previous;
+        while ($scope) {
+            if ($scope->token == $token) {
+                return $scope;
+            }
+            $scope = $scope->previous;
+        }
+
+        return null;
     }
 
     public function addVariable(Variable $var)

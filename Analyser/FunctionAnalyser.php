@@ -56,7 +56,8 @@ class FunctionAnalyser extends Analyser
 
         $cursor->skipUntil(T_OPEN_PAREN);
         $tok = $cursor->getCurrent();
-        do {
+
+        while ($cursor->isValid() && !($tok->type == T_OPEN_CURLY || $tok->type == T_SEMICOLON)) {
             if ($tok->type == T_VARIABLE) {
                 $this->_debug->log(self::ID, $tok->line, Debug::ParamNew, $tok->id);
 
@@ -66,13 +67,14 @@ class FunctionAnalyser extends Analyser
                 $var->usage       = 0;
                 $var->initialized = true; // Default auf true
                 $var->defined     = true; // Default auf true
+                $var->reference   = $cursor->lookBehind()->type == T_AND;
 
                 $scope->addVariable($var);
             }
 
             $cursor->next();
             $tok = $cursor->getCurrent();
-        } while ($cursor->isValid() && !($tok->type == T_OPEN_CURLY || $tok->type == T_SEMICOLON));
+        }
 
         if ($tok->type == T_SEMICOLON) {
             foreach ($scope->variables as $var) {

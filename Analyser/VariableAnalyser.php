@@ -78,9 +78,9 @@ class VariableAnalyser extends Analyser
                 if ($vp->defined) {
                     $vp->usage++;
 
-                    $this->_debug->log(self::ID, $token->line, Debug::PropertyExists, $vp->id, $vp->usage);
+                    $this->_debug->log(self::ID, $token->line, Debug::PropertyExists, $vp->name, $vp->usage);
                 } else {
-                    $this->_debug->log(self::ID, $token->line, Debug::PropertyExistsUndefined, $vp->id);
+                    $this->_debug->log(self::ID, $token->line, Debug::PropertyExistsUndefined, $vp->name);
                 }
             } else {
                 $this->_debug->log(self::ID, $token->line, Debug::PropertyNew, $tok->id);

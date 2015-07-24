@@ -92,6 +92,11 @@ final class Parser
             case T_PARENT:
             case T_STATIC:
                 return new StaticAnalyser($this->_detector, $options);
+            case T_WHILE:
+            case T_DO:
+            case T_FOR:
+            case T_FOREACH:
+                return new LoopAnalyser($this->_detector, $options);
         }
 
         return null;

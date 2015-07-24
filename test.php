@@ -44,11 +44,12 @@ function foo($a, $b)
     $c;
 }
 
+$cursor = 0;
 for ($i = 0; $i < 4; $i++) {
-
+    $cursor = $i;
 }
 
 $arr = [1, 2, 3];
-foreach ($arr as $item) {
+foreach ($arr as &$item) {
     $tmp = $item;
 }
