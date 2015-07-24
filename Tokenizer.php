@@ -31,7 +31,8 @@ define('T_AND', 22); // &
 define('T_OR', 23); // |
 define('T_XOR', 24); // ^
 
-define('UNKNOWN_TOKEN', token_name(0));
+define('UNKNOWN_TOKEN_TYPE', 0);
+define('UNKNOWN_TOKEN', token_name(UNKNOWN_TOKEN_TYPE));
 
 function get_token_name(int $value)
 {
@@ -118,7 +119,7 @@ final class Tokenizer
             return new Token($type, 0, $token, get_token_name($type));
         }
 
-        return new Token(0, 0, $token, UNKNOWN_TOKEN);
+        return new Token(UNKNOWN_TOKEN_TYPE, 0, $token, UNKNOWN_TOKEN);
     }
 
     public function getTokens()
