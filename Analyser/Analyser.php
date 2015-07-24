@@ -86,7 +86,7 @@ abstract class Analyser
         // look ahead
         $next = $cursor->lookAhead();
         if ($next->type == T_CLOSE_PAREN || $next->type == T_DOUBLE_ARROW) {
-            // it is call yb reference (e.g. see preg_match)
+            // it is call by reference (e.g. see preg_match)
             // or it is in an foreach statement, e.g. foreach ($arr as $var) or foreach ($arr as $v => $k)
             return true;
         }
