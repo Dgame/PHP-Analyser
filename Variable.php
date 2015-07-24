@@ -21,6 +21,8 @@ final class Variable
         '$HTTP_SERVER_VARS' => true,
         '$HTTP_POST_FILES'  => true,
         '$this'             => true,
+        '$argv'             => true,
+        '$argc'             => true,
         '$_'                => true, // for valid unused variables
     ];
 

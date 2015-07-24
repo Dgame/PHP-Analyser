@@ -5,8 +5,6 @@ define('PHP_ANALYSER_PATH', dirname(__FILE__) . DIRECTORY_SEPARATOR);
 require_once PHP_ANALYSER_PATH . 'config.php';
 require_once 'Parser.php';
 
-print DEBUG;
-
 if (DEBUG) {
     $p = new Parser(Detect::All);
     $p->parse('test.php', Options::None);

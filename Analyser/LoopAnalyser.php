@@ -20,7 +20,7 @@ class LoopAnalyser extends Analyser
             $token->type == T_FOR ||
             $token->type == T_FOREACH
         );
-        
+
         $scope = new Scope($token->line, $token->type, $scopes->getCurrentScope());
         $scopes->pushScope($scope);
 
@@ -28,7 +28,7 @@ class LoopAnalyser extends Analyser
         $tok = $cursor->getCurrent();
 
         while ($cursor->isValid() && !($tok->type == T_OPEN_CURLY || $tok->type == T_SEMICOLON)) {
-            if ($tok->type == T_VARIABLE) {
+            if ($tok->type == T_VARIABLE && Variable::Approve($tok->id)) {
                 $var = new Variable($tok->id, $tok->line);
                 $vp = $scope->findVariable($var);
 

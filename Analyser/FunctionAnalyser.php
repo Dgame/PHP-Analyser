@@ -58,7 +58,7 @@ class FunctionAnalyser extends Analyser
         $tok = $cursor->getCurrent();
 
         while ($cursor->isValid() && !($tok->type == T_OPEN_CURLY || $tok->type == T_SEMICOLON)) {
-            if ($tok->type == T_VARIABLE) {
+            if ($tok->type == T_VARIABLE && Variable::Approve($tok->id)) {
                 $this->_debug->log(self::ID, $tok->line, Debug::ParamNew, $tok->id);
 
                 $var              = new Variable($tok->id, $tok->line);
