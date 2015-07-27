@@ -93,15 +93,21 @@ final class Tokenizer
 
     private function _processTokens(array $tokens)
     {
+        $line = 0;
         foreach ($tokens as $raw_token) {
-            $token = $this->_createTokenObject($raw_token);
+            $token = $this->_createTokenObject($raw_token, $line);
+
+            if ($token->line != 0) {
+                $line = $token->line;
+            }
+
             if (!array_key_exists($token->type, self::$IgnoredTokens)) {
                 $this->_tokens[] = $token;
             }
         }
     }
 
-    private function _createTokenObject($token)
+    private function _createTokenObject($token, int $line)
     {
         if (is_array($token)) {
             list($type, $id, $line) = $token;
@@ -116,10 +122,10 @@ final class Tokenizer
         if (array_key_exists($token, self::$TypedTokens)) {
             $type = self::$TypedTokens[$token];
 
-            return new Token($type, 0, $token, get_token_name($type));
+            return new Token($type, $line, $token, get_token_name($type));
         }
 
-        return new Token(UNKNOWN_TOKEN_TYPE, 0, $token, UNKNOWN_TOKEN);
+        return new Token(UNKNOWN_TOKEN_TYPE, $line, $token, UNKNOWN_TOKEN);
     }
 
     public function getTokens()

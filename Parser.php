@@ -42,15 +42,10 @@ final class Parser
         $scopes    = new Scopes();
         $tokenizer = new Tokenizer($filename);
         $cursor    = new Cursor($tokenizer->getTokens());
-
-        $line = 0;
-
+        
         do {
             $moved = false;
             $token = $cursor->getCurrent();
-
-            if ($token->line != 0)
-                $line = $token->line;
 
             if ($token->type == T_OPEN_CURLY) {
                 $scopes->open();
