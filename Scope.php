@@ -35,7 +35,6 @@ final class Scope
 
     public function findByToken(int $token)
     {
-        $prev = $this->previous;
         $scope = $this;
         do {
             if ($scope->token == $token) {
