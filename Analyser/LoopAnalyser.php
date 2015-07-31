@@ -23,7 +23,7 @@ class LoopAnalyser extends VariableAnalyser
 
         $scope = new Scope($token->line, $token->type, $scopes->getCurrentScope());
         $scopes->pushScope($scope);
-        
+
         $approval = $this->getApprovalFor('Variable');
 
         $cursor->next(); // jump over loop token

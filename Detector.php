@@ -48,10 +48,10 @@ final class Detector
     {
         if (!$var->defined && ($var->assignment || $var->property || $var->parameter)) {
             if ($var->property) {
-                $sc = $scope->findPrevious(T_CLASS);
+                $sc = $scope->findByToken(T_CLASS);
                 if ($sc) {
                     $info = $sc->getInfo();
-                    if ($info->is_child_class || $info->has_magic_get || $info->has_magic_set) {
+                    if ($info->is_child_class || $info->has_magic_get || $info->has_magic_set || $info->use_traits) {
                         return;
                     }
                 }
@@ -65,10 +65,10 @@ final class Detector
     {
         if (!$var->initialized) {
             if ($var->property) {
-                $sc = $scope->findPrevious(T_CLASS);
+                $sc = $scope->findByToken(T_CLASS);
                 if ($sc) {
                     $info = $sc->getInfo();
-                    if ($info->is_child_class || $info->has_magic_get || $info->has_magic_set) {
+                    if ($info->is_child_class || $info->has_magic_get || $info->has_magic_set || $info->use_traits) {
                         return;
                     }
                 }

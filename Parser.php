@@ -42,7 +42,7 @@ final class Parser
         $scopes    = new Scopes();
         $tokenizer = new Tokenizer($filename);
         $cursor    = new Cursor($tokenizer->getTokens());
-        
+
         do {
             $moved = false;
             $token = $cursor->getCurrent();

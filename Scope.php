@@ -33,15 +33,16 @@ final class Scope
         return $this->_info;
     }
 
-    public function findPrevious(int $token)
+    public function findByToken(int $token)
     {
-        $scope = $this->previous;
-        while ($scope) {
+        $prev = $this->previous;
+        $scope = $this;
+        do {
             if ($scope->token == $token) {
                 return $scope;
             }
             $scope = $scope->previous;
-        }
+        } while ($scope);
 
         return null;
     }

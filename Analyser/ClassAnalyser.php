@@ -27,8 +27,22 @@ class ClassAnalyser extends Analyser
         $cursor->pushPosition();
         $tok = $cursor->getCurrent();
 
+        assert($tok->type == T_OPEN_CURLY);
+        $cursor->next(); // jump over T_OPEN_CURLY
+
+        $curlies = 1;
+
+        $tok = $cursor->getCurrent();
         do {
             switch ($tok->type) {
+                case T_OPEN_CURLY:
+                    $curlies++;
+                break;
+
+                case T_CLOSE_CURLY:
+                    $curlies--;
+                break;
+
                 case T_STATIC:
                 case T_PRIVATE:
                 case T_PUBLIC:
@@ -58,7 +72,7 @@ class ClassAnalyser extends Analyser
 
             $cursor->next();
             $tok = $cursor->getCurrent();
-        } while ($cursor->isValid());
+        } while ($cursor->isValid() && $curlies > 0);
 
         $cursor->popPosition();
 
