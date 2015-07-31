@@ -38,7 +38,7 @@ final class Detector
                 }
 
                 if ($this->_options & Detect::Unused) {
-                    $this->_detectUnused($var);
+                    $this->_detectUnused($scope, $var);
                 }
             }
         }
@@ -78,9 +78,20 @@ final class Detector
         }
     }
 
-    private function _detectUnused(Variable $var)
+    private function _detectUnused(Scope $scope, Variable $var)
     {
-        if ($var->usage == 0 && $var->defined && $var->protection != T_PUBLIC && $var->state != T_ABSTRACT) {
+        $prot = $var->protection == T_PRIVATE || $var->protection == 0;
+        if ($var->usage == 0 && $var->defined && $prot && $var->state != T_ABSTRACT) {
+            if ($var->property) {
+                $sc = $scope->findByToken(T_CLASS);
+                if ($sc) {
+                    $info = $sc->getInfo();
+                    if ($info->has_magic_get || $info->has_magic_set) {
+                        return;
+                    }
+                }
+            }
+
             printf(PRINT_FORMAT, $var . ' is unused', $var->line);
         }
     }
