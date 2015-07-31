@@ -85,6 +85,10 @@ final class Tokenizer
 
     public function __construct(string $filename)
     {
+        if (!file_exists($filename)) {
+            throw new Exception('File does not exists: ' . $filename);
+        }
+        
         $content = file_get_contents($filename);
         $tokens  = token_get_all($content);
 

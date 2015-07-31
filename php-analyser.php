@@ -72,8 +72,12 @@ if (DEBUG) {
     if ($detect != Detect::None && !empty($argv)) {
         $p = new Parser($detect);
         foreach ($argv as $arg) {
-            if (is_file($arg) && substr($arg, -4) == '.php') {
-                $p->parse($arg, $options);
+            if (substr($arg, -4) == '.php') {
+                try {
+                    $p->parse($arg, $options);
+                } catch (Exception $e) {
+                    print $e->getMessage() . PHP_EOL;
+                }
             }
         }
     }

@@ -2,7 +2,7 @@
 
 require_once 'Analyser.php';
 
-class AssignmentAnalyser extends Analyser
+class AssignmentAnalyser extends VariableAnalyser
 {
     const ID = 'AA';
 
@@ -19,11 +19,17 @@ class AssignmentAnalyser extends Analyser
         $cursor->next(); // jump over assignment
         $tok = $cursor->getCurrent();
 
+        $approval = $this->getApprovalFor('Variable');
+        $scope = $scopes->getCurrentScope();
+
         $moved = false;
         while ($cursor->isValid() && $tok->type != T_SEMICOLON) {
-            if ($tok->type == T_VARIABLE && Variable::Approve($tok->id)) {
-                $scope = $scopes->getCurrentScope();
-
+            if ($approval->approve($cursor, $scope)) {
+                if ($tok->id == '$this') {
+                    $this->_analyseThisDecl($scopes, $cursor);
+                    continue;
+                }
+                
                 $var = new Variable($tok->id, $tok->line);
                 $vp  = $scope->findVariable($var);
 

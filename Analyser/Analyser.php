@@ -26,11 +26,12 @@ require_once PHP_ANALYSER_PATH . 'Debug.php';
 
 abstract class Analyser
 {
-    private $_approval  = null;
     private $_inspector = null;
+    private $_approvals = [];
 
     protected $_detector = null;
     protected $_debug = null;
+
 
     public function __construct(Detector $detector, int $options)
     {
@@ -38,13 +39,13 @@ abstract class Analyser
         $this->_debug = new Debug($options);
     }
 
-    final public function getApproval()
+    final public function getApprovalFor(string $name)
     {
-        if (!$this->_approval) {
-            $this->_approval = Approval::Create(get_called_class());
+        if (!array_key_exists($name, $this->_approvals)) {
+            $this->_approvals[$name] = Approval::Create($name);
         }
 
-        return $this->_approval;
+        return $this->_approvals[$name];
     }
 
     final public function getInspector()

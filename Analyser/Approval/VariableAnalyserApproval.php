@@ -14,6 +14,10 @@ final class VariableAnalyserApproval extends Approval
     {
         $token = $cursor->getCurrent();
 
+        if ($token->type != T_VARIABLE) {
+            return false;
+        }
+
         if ($token->id == '$this') {
             return $this->_approveThisProperty($cursor);
         }
@@ -43,7 +47,9 @@ final class VariableAnalyserApproval extends Approval
 
         $tok = $cursor->getCurrent();
         if ($tok->type != T_OBJECT_OPERATOR) {
-            return true;
+            $cursor->popPosition();
+
+            return false;
         }
 
         $cursor->next(); // jump over '->'

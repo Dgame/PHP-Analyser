@@ -2,7 +2,7 @@
 
 require_once 'Analyser.php';
 
-class LoopAnalyser extends Analyser
+class LoopAnalyser extends VariableAnalyser
 {
     const ID = 'LA';
 
@@ -23,12 +23,19 @@ class LoopAnalyser extends Analyser
 
         $scope = new Scope($token->line, $token->type, $scopes->getCurrentScope());
         $scopes->pushScope($scope);
+        
+        $approval = $this->getApprovalFor('Variable');
 
         $cursor->next(); // jump over loop token
         $tok = $cursor->getCurrent();
 
         while ($cursor->isValid() && !($tok->type == T_OPEN_CURLY || $tok->type == T_SEMICOLON)) {
-            if ($tok->type == T_VARIABLE && Variable::Approve($tok->id)) {
+            if ($approval->approve($cursor, $scope)) {
+                if ($tok->id == '$this') {
+                    $this->_analyseThisDecl($scopes, $cursor);
+                    continue;
+                }
+
                 $var = new Variable($tok->id, $tok->line);
                 $vp = $scope->findVariable($var);
 

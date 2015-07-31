@@ -49,6 +49,9 @@ class FunctionAnalyser extends Analyser
         $scope = new Scope($token->line, T_FUNCTION, $scopes->getCurrentScope());
         $scopes->pushScope($scope);
 
+        $scope = $scopes->getCurrentScope();
+        $approval = $this->getApprovalFor('Variable');
+
         $cursor->next(); // jump over T_FUNCTION
         $token = $cursor->getCurrent(); // store the function name
 
@@ -58,7 +61,12 @@ class FunctionAnalyser extends Analyser
         $tok = $cursor->getCurrent();
 
         while ($cursor->isValid() && !($tok->type == T_OPEN_CURLY || $tok->type == T_SEMICOLON)) {
-            if ($tok->type == T_VARIABLE && Variable::Approve($tok->id)) {
+            if ($approval->approve($cursor, $scope)) {
+                if ($tok->id == '$this') {
+                    $this->_analyseThisDecl($scopes, $cursor);
+                    continue;
+                }
+
                 $this->_debug->log(self::ID, $tok->line, Debug::ParamNew, $tok->id);
 
                 $var              = new Variable($tok->id, $tok->line);

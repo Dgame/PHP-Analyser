@@ -4,11 +4,11 @@ abstract class Approval
 {
     abstract public function approve(Cursor $cursor, Scope $scope);
 
-    public static function Create(string $class_name)
+    public static function Create(string $name)
     {
-        $class_name .= 'Approval';
-        require_once $class_name . '.php';
+        $name .= 'AnalyserApproval';
+        require_once $name . '.php';
 
-        return new $class_name();
+        return new $name();
     }
 }

@@ -6,9 +6,6 @@ class VariableAnalyser extends Analyser
 {
     const ID = 'VA';
 
-    const Dollar       = '$';
-    const PropertyThis = '$this';
-
     public function __construct(Detector $detector, int $options)
     {
         parent::__construct($detector, $options);
@@ -19,13 +16,16 @@ class VariableAnalyser extends Analyser
         $token = $cursor->getCurrent();
         assert($token->type == T_VARIABLE);
 
-        $scope = $scopes->getCurrentScope();
+        $scope    = $scopes->getCurrentScope();
+        $approval = $this->getApprovalFor('Variable');
 
-        if (!$this->getApproval()->approve($cursor, $scope)) {
+        if (!$approval->approve($cursor, $scope)) {
             return false;
         }
 
-        if ($token->id == self::PropertyThis) {
+        if ($token->id == '$this') {
+            assert($token->type == $cursor->getCurrent()->type);
+
             return $this->_analyseThisDecl($scopes, $cursor);
         }
 
@@ -56,10 +56,10 @@ class VariableAnalyser extends Analyser
         return true;
     }
 
-    private function _analyseThisDecl(Scopes $scopes, Cursor $cursor)
+    final protected function _analyseThisDecl(Scopes $scopes, Cursor $cursor)
     {
         $token = $cursor->getCurrent();
-        assert($token->id == self::PropertyThis);
+        assert($token->id == '$this');
 
         $cursor->next(); // jump over '$this'
         $tok = $cursor->getCurrent();
@@ -71,7 +71,7 @@ class VariableAnalyser extends Analyser
 
             assert($tok->type == T_STRING);
 
-            $var = new Variable(self::Dollar . $tok->id, $token->line);
+            $var = new Variable('$' . $tok->id, $token->line);
             $vp  = $scope->findVariable($var);
 
             if ($vp) {
