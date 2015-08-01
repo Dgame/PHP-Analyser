@@ -19,7 +19,8 @@ class StaticAnalyser extends Analyser
         $cursor->next(); // jump over
         $tok = $cursor->getCurrent();
 
-        if ($tok->type == T_DOUBLE_COLON) { // self/static/parent access
+        if ($tok->type == T_DOUBLE_COLON) {
+            // self/static/parent access
             $cursor->next();
             $tok = $cursor->getCurrent();
 
@@ -37,10 +38,10 @@ class StaticAnalyser extends Analyser
 
                 $this->_debug->log(self::ID, $token->line, Debug::PropertyStaticExists, $vp->id, $vp->usage);
             } else {
-                $this->_debug->log(self::ID, $token->line, Debug::PropertyStaticNew, $vp->id);
+                $this->_debug->log(self::ID, $token->line, Debug::PropertyStaticNew, $var->id);
 
-                $var->defined = false;
-                $var->property = true;
+                $var->defined     = false;
+                $var->property    = true;
                 $var->initialized = $this->_findInitializer($cursor);
 
                 $scope->addVariable($var);
