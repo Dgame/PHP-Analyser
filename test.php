@@ -28,6 +28,9 @@ abstract class Foo
     {
         $this->abc = 1;
         $this->xyz = 0;
+
+        $foo = 'Bar';
+        $_ = $this->{$foo};
     }
 
     abstract public function foo($test);
