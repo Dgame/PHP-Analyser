@@ -26,9 +26,24 @@ final class Variable
         '$_'                => true, // for valid unused variables
     ];
 
+    private static $Exceptions_Regexp = [
+        '/^\$__/'            => true, // for valid unused variables ($__anything)
+    ];
+
+    public static function ApproveRe(string $id)
+    {
+        foreach (array_keys(self::$Exceptions_Regexp) as $this_re) {
+            if (preg_match($this_re, $id)) {
+		return true;
+            }
+        }
+
+        return false;
+    }
+
     public static function Approve(string $id)
     {
-        return !array_key_exists($id, self::$Exceptions);
+        return !(self::ApproveRe($id) or array_key_exists($id, self::$Exceptions));
     }
 
     private $_id   = null;

@@ -17,6 +17,7 @@ if (DEBUG) {
         'spell'      => 'Detects misspelled words',
         'verbose'    => 'Verbose output',
         'debug'      => 'Debug mode',
+        'filename'   => 'Show filename for each file processed',
         'help'       => 'Print this information'
     ];
 
@@ -60,6 +61,9 @@ if (DEBUG) {
             break;
             case 'debug':
                 $options |= Options::Debug;
+            break;
+            case 'filename':
+                $options |= Options::Filename;
             break;
             case 'help':
                 print usage();
