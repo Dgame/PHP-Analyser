@@ -43,6 +43,10 @@ final class Parser
         $tokenizer = new Tokenizer($filename);
         $cursor    = new Cursor($tokenizer->getTokens());
 
+        if ($options & Options::Filename) {
+                print "==$filename\n";
+        }
+
         do {
             $moved = false;
             $token = $cursor->getCurrent();
